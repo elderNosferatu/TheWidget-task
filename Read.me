@@ -1,0 +1,33 @@
+ -= ЗВІТ ПО ВИКОНАННЮ ЗАВДАННЯ =-
+
+1. Структура коду
+  1.1. TheWidget.<coffee/js>:
+    1.1.1. TheWidgetManager:
+      - працює з Local Storage (зберігає і зчитує інформацію про існуючі віджети)
+      - моніторить користувацький ввід на сторінці документу
+      - вставляє/видаляє екземпляри віджету
+      - реагує на зміну серверної інформації, розсилаючи її зареєстрованим віджетам
+    1.1.2. TheWidget:
+      - відображає інформацію від менеджера у виді діаграми
+      - сигналізує про надмірну активність "користувачів" градієнтним почорнінням стовпчика
+      - очікує (кнопка "Х") запросу на видалення для передачі його менеджеру
+    1.1.3. ActivityWatcher:
+      - здійснює безперервне опитування "сервера"
+  1.2. helpers.<coffee/js>
+    1.2.1. jQWERTY
+      - пародія на jQuery, містить єдину функцію, що мімітує роботу $.post(...)
+    1.2.2. ServerEmulator
+      - симулює затримку відповіді на запит
+      - симулює активність на сервері (вхід/вихід користувачів)
+      - працює незалежно від наявності/відсутності запитів
+  1.3.
+    - стилізація панелі віджету
+    - стилізація svg-діаграми
+
+2. Інструкція англомовному тестеру
+  The main problem for the widget manager is a change of placeholders amount. Here are some possible cases:
+    - dynamic removal of placeholder does not cancel its registration in the widget manager (mouse events handler will continue its work).
+    - dynamic adding a new placeholder not include it in the register of the widget manager.
+    - if the widget is in the last placeholder and if on next document load will be less number of placeholders, then this widget will not be able to be revealed on the page.
+
+  P.S.: Sorry for my google-translate :(
