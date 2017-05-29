@@ -21,11 +21,11 @@
 	text-overflow: ellipsis;
 	vertical-align: middle;
 	line-height: 20px;
-	width: 270px;
+	width: 250px;
 	height: 20px;
 	float: left;
 }
-.the-widget .btn_close {
+.the-widget .thewidget-btn {
 	font-weight: bold;
 	font-size: 20px;
 	color: black;
@@ -56,6 +56,61 @@
 	vertical-align: middle;
 
 }
+
+.the-widget .options {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0, 0.25);
+}
+.options div {
+	position: absolute;
+}
+.options .frame {
+	border: 2px solid black;
+}
+.options .frame.layer-0 {
+	left: 4px;
+	top: 4px;
+	right: 8px;
+	bottom: 8px;
+}
+.options .frame.layer-1 {
+	left: 8px;
+	top: 8px;
+	right: 4px;
+	bottom: 4px;
+}
+.options .form {
+	left: 10px;
+	top: 10px;
+	right: 10px;
+	bottom: 10px;
+	background: rgba(255,255,255, 0.65);
+	padding: 5px;
+}
+.options p,
+.options span {
+	cursor: default;
+	margin-top: 6px;
+	margin-bottom: 0;
+}
+.options .caption {
+	text-align: center;
+}
+.options input,
+.options select {
+	width: 250px;
+}
+.options button {
+	float: right;
+	margin: 0 5px;
+}
+
+
+
 
 /* for svg */
 line {

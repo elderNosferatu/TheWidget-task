@@ -1,0 +1,22 @@
+<div class="options">
+	<div class="frame layer-0"></div>
+	<div class="frame layer-1"></div>
+	<div class="form">
+		<p class="caption"><b>TheWidget::options</b></p>
+		<hr>
+		<p>Site (type or select):</p>
+		<input id="type_{{instId}}" type="text" value="{{options.siteTyped}}" on-click="@this.set('options.siteSelected','')"/>
+		<br>
+		<select id="select_{{instId}}" value="{{options.siteSelected}}" on-click="@this.set('options.siteTyped','')">
+			<option></option>
+			{{#each options.sites}}
+			<option value="{{this}}">{{this!="."?this:cfg.thisSite}}</option>
+			{{/each}}
+		</select>
+		<p>Users limit:</p>
+		<input type="number" value="{{options.limUsers}}"/>
+		<hr>
+		<button on-click="@this.toggle('options.shown')">Cancel</button>
+		<button on-click="@this.applyOpts()">Apply</button>
+	</div>
+</div>

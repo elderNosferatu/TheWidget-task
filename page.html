@@ -1,64 +1,15 @@
 <!doctype html>
-<html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
 	<meta charset="utf-8">
 	<title>Widget task</title>
-	<link rel="stylesheet" type="text/css" href="the-widget.css">
 	<style type="text/css">
 		.place_holder {width:300px;height:200px;background-color:#EEE;float:left;margin:10px;border:1px dashed #CCC}
 		.splitter {clear:left}
 	</style>
 </head>
 <body>
-<script type="text/ractive" id="template_thewidget">
-<div class="the-widget">
-	<header>
-		<span>Site activity: <a href="" title="{{site}}">{{site}}</a></span>
-	</header>
-	<div class="btn_close" on-click="suicide">&times;</div>
-
-<svg width="{{cfg.easel.width}}" height="{{cfg.easel.height}}">
-	<defs>
-		<linearGradient
-				id="{{hotBgId}}"
-				gradientUnits="objectBoundingBox"
-				spreadMethod="pad"
-				x1="0%" x2="0%" y1="0%" y2="100%">
-			<stop offset="0%"
-			      style="stop-color: black;"/>
-			<stop offset="75%"
-			      style="stop-color: {{barColor}};"/>
-		</linearGradient>
-	</defs>
-
-	<rect class="bg"
-	      x="0" y="0"
-	      width="{{cfg.easel.width}}" height="{{cfg.easel.height}}"/>
-
-	<line x1="1" y1="{{cfg.baseLine}}"
-	      x2="{{cfg.easel.width-2}}" y2="{{cfg.baseLine}}"/>
-
-	{{#each drawData:idx}}
-		{{#with bar}}
-			<rect x="{{x}}" y="{{y}}" width="{{w}}" height="{{h}}" fill="{{bg}}" />
-		{{/with}}
-		{{#with lbl}}
-			<text class="{{cls}}" x="{{x}}" y="{{y}}" transform="rotate(-90, {{x}}, {{y}})">{{text}}</text>
-		{{/with}}
-	{{/each}}
-</svg>
-
-	<div class="summary">
-		<div>lim: {{limUsers}}</div>
-		<div>min: {{minUsers}}</div>
-		<div>max: {{maxUsers}}</div>
-		<div>avg: {{avgUsers}}</div>
-	</div>
-</div>
-</script>
-
-<!-- -->
-<div id="vp" class="place_holder"></div>
+<div class="place_holder"></div>
 <div class="place_holder"></div>
 <div class="place_holder"></div>
 <div class="splitter"></div>
@@ -66,22 +17,25 @@
 <div class="place_holder"></div>
 <div class="place_holder"></div>
 <!-- -->
-
+<link rel="stylesheet" type="text/css" href="the-widget.css">
 <script src="lib/jquery-3.2.1.js"></script>
 <script src='lib/ractive.js'></script>
-<script src="src/helpers.js"></script>
-<script src="src/TheWidget.js"></script>
+<script src="src/helpers/Dictionary.js"></script>
+<script src="src/helpers/XMath.js"></script>
+<script src="src/helpers/ServerEmulator.js"></script>
+<script src="src/helpers/jQWERTY.js"></script>
+<script src="src/the-widget/routine/ActivityWatcher.js"></script>
+<script src="src/the-widget/routine/ActivityWatchManager.js"></script>
+<script src="src/the-widget/routine/InputManager.js"></script>
+<script src="src/the-widget/routine/RegisterManager.js"></script>
+<script src="src/the-widget/TheWidget.js"></script>
+<script src="src/the-widget/TheWidgetManager.js"></script>
 <script>
 	$(document).ready(function(){
-		serverEmulator.run();
-		TheWidgetManager.run();
+		var options = { /* do what you want */ };
+		var twm = window._twm_ = new window.thewidget.TheWidgetManager(options);
+		twm.run();
 	});
-	console.log(10 == Object(10))
-	console.log(10 === Object(10))
-	console.log(10, Object(10))
-	console.log(typeof 10, typeof Object(10))
 </script>
-
-
 </body>
 </html>
