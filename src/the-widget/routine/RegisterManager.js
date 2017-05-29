@@ -6,6 +6,11 @@
 
   pkg = pkg.routine = pkg.routine || {};
 
+
+  /**
+   Реєстр активних віджетів. Дозволяє, при доступності localStorage, зберігати і завантажуват власну інформацію
+   */
+
   RegisterManager = (function() {
     var _data, _storeKey;
 

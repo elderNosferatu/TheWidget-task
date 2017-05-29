@@ -6,6 +6,19 @@ pkg = pkg.routine = pkg.routine or {}
 ActivityWatcher = pkg.ActivityWatcher
 
 
+###*
+ * Клас-прослойка між серверами сайтів, віджет-менеджером і езамплярами віджетів на сторінці.
+ * Клас гарантує те, що всі віджети, які працюють з одним і тим же сайтом будуть отримувати дані з
+ * єдиного джерела. Таким чином знижується навантаження як на трафік, так і на самі сервери сайтів.
+ * В принципі достатньо і одного віджета для моніторингу одного сайту, але чим чорт не шутить... В кінці
+ * кінців форми для вводу коментарів роблять перед і після блоку коментарів - віключно для зручності.
+ *
+ * ActivityWatchManager дозволяє інтересантам активності на сайтах оформляти підписку, відміняти чи переоформляти її.
+ * Таким чином неслабо розвантажується основний код віджет-менеджера.
+ *
+ * Також ActivityWatchManager зберігає адреси всіх підключених сайтів, що може допомогти при створенні копій віджетів,
+ * які працюють з одним і тим же сайтом - в панелі настройки віджету буде можливість використати адреси відомих сайтів.
+ ###
 class ActivityWatchManager
 	_cache: null
 	_cfg: null
@@ -47,7 +60,7 @@ class ActivityWatchManager
 			arrSubs = @_cache.watch2subs.get watcher
 			idx = arrSubs.indexOf subscriber
 			if idx isnt -1
-				arrSubs.splice idx, -1
+				arrSubs.splice idx, 1
 			if arrSubs.length is 0
 				watcher.sleep()
 
@@ -73,58 +86,3 @@ class ActivityWatchManager
 
 
 pkg.ActivityWatchManager = ActivityWatchManager
-
-
-###
-class ActivityMgr
-	_url: null
-	_delay: 0
-	_fnParser: null
-	_subsClbName: null
-
-	_watcher: new ActivityWatcher()
-	_subscribers: []
-
-	##*
-   * @class ActivityManager
-   * @param {string}  url  url, по якому можна отримати інфу про активність на сайті
-   * @param {number}  delay  затримка між запитами про активність
-   * @param {function|null}  fnParser функція перетворення серверних даних. Якщо не задана, то підписчики отримуватимуть дані в сирому виді
-   * @param {string|null}  subsClbName  ім"я колбек-методу підписчика; якщо аргумент невизначений, або є порожнтою строкою, або у підписчика немає методу з таким іменем, то сам підписчик вважається колбек-функцією
-   * @param {any} subscribers можливий набір бажаючих підписатись на інформацію про активність із вказаного url
-	 ##
-	constructor: (@_url, @_delay, @_fnParser, @_subsClbName, subscribers...) ->
-		@_watcher = new ActivityWatcher(@_url, @_delay, @_clbWatch)
-
-		if subscribers? and subscribers.length > 0
-			for asubs in subscribers
-				if asubs?
-					@addSubscriber(asubs)
-
-
-	addSubscriber: (instance) ->
-		if instance? and (-1 isnt @_subscribers.indexOf instance)
-			@_subscribers.push instance
-			if not @_watcher.isBusy()
-				@_watcher.awake()
-
-
-	removeSubscriber: (instance) ->
-		idx = @_subscribers.indexOf instance
-		if idx isnt -1
-			@_subscribers.splice idx, 1
-			if @_subscribers.length is 0
-				@_watcher.sleep()
-
-
-	_clbWatch: (data) =>
-		info = (if @_fnParser? then @_fnParser.call null, data else data)
-		for subs in @_subscribers
-			method = subs[@_subsClbName] or subs
-			scope = (if method is subs then null else subs)
-			method.call scope, info
-		# З усіх сил стримуюсь не вставити в послідній рядок оператор `return` (див. розділ "Запитання" в файлі $proj$/Read.me)
-
-
-pkg.ActivityManager = ActivityManager
-###

@@ -1,6 +1,9 @@
 pkg = window.thewidget = window.thewidget or {}
 
-
+###
+  Три наступні функції могли бути просто змінними зі строковими значеннями, але в погоні за читабельністю
+  і скролябельністю я вибрав іменно функції, тому що ФОЛДІНГ
+###
 strTemplate = ->
 	"""<div class="the-widget">
 	<header>
@@ -90,6 +93,10 @@ strOptions = ->
 	</div>
 </div>"""
 
+###
+  Набір параметрів візуалізацї для віджетів. Навмисне винесений за межі класу, тому що нема
+  необхідності плодити єкземпляри цього хешу, адже ці параметри є спільними для всіх віджетів
+###
 theWidgetInstConfig =
 	historySize: 25
 	baseLine: 155
@@ -108,6 +115,9 @@ theWidgetInstConfig =
 		indentTinyBottom: 2
 		indentLeft: 8
 
+###
+  Функція-обгортка необхідна, щобу уберегти хеш options від деребану між віджетами
+###
 theWidgetInstData = ->
 	cfg: theWidgetInstConfig
 	options:
@@ -131,7 +141,12 @@ theWidgetInstData = ->
 
 
 
-
+###*
+ * Шаблон для наслідування єкземпляром класу віджету.
+ * У порівнянні з попередньою версією, передбачена можливість настройки віджету після старту.
+ * Можна як вибрати порогову кількість відвідувачів, так і перепідписатися на інший сайт.
+ * Вищезгадані опції відкриваються новою хнопкою в ПН-СХ куті віджету.
+ ###
 blueprint =
 	partials:
 		options: strOptions()
@@ -170,7 +185,7 @@ blueprint =
 		@set "limUsers", value
 		@set "options.limUsers", value
 		@set "drawData", []
-		@_refreshData(true)
+		@_refreshData true
 
 	setBarColor: (value) ->
 		@_barColor = value
@@ -181,6 +196,9 @@ blueprint =
 		@set "site", value
 		@set "options.siteTyped", value
 		@set "options.siteSelected", value
+		@_history.length = 0
+		@_refreshData true
+
 
 	siteName: (rawName) ->
 		if rawName isnt "."
@@ -215,7 +233,7 @@ blueprint =
 		site = (opts.siteTyped or opts.siteSelected) or "."
 
 		if site and (site isnt @get "site")
-			@set "site", site
+			@setSite site
 			if @changeCallback?
 				@changeCallback @
 
@@ -238,12 +256,12 @@ blueprint =
 		limit = @_history.length
 		while ++pointer < limit
 			amount = @_history[pointer]
-			data[pointer] = @_changeData amount, pointer, data[pointer]
+			data[pointer] = @_changeInfo amount, pointer, data[pointer]
 
 		@set "drawData", data
 
 
-	_changeData: (amount, index, data) ->
+	_changeInfo: (amount, index, data) ->
 		cfg = @_CFG_
 		bar = cfg.bar
 		lbl = cfg.lbl

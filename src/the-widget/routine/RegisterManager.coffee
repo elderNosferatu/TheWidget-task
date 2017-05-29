@@ -2,6 +2,9 @@ pkg = window.thewidget = window.thewidget or {}
 pkg = pkg.routine = pkg.routine or {}
 
 
+###*
+ Реєстр активних віджетів. Дозволяє, при доступності localStorage, зберігати і завантажуват власну інформацію
+ ###
 class RegisterManager
 	_storeKey = null
 	_data = null

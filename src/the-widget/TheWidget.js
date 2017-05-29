@@ -4,6 +4,12 @@
 
   pkg = window.thewidget = window.thewidget || {};
 
+
+  /*
+    Три наступні функції могли бути просто змінними зі строковими значеннями, але в погоні за читабельністю
+    і скролябельністю я вибрав іменно функції, тому що ФОЛДІНГ
+   */
+
   strTemplate = function() {
     return "<div class=\"the-widget\">\n<header>\n	<span>Site activity: <a href=\"\" title=\"{{@this.siteName(site)}}\">{{@this.siteName(site)}}</a></span>\n</header>\n<div class=\"thewidget-btn\" on-click=\"suicide\">&times;</div>\n<div class=\"thewidget-btn\" on-click=\"@this.toggle('options.shown')\">+</div>\n\n{{>chart}}\n\n<div class=\"summary\">\n	<div>lim: {{limUsers}}</div>\n	<div>min: {{minUsers}}</div>\n	<div>max: {{maxUsers}}</div>\n	<div>avg: {{avgUsers}}</div>\n</div>\n\n{{#if options.shown}}\n	{{>options}}\n{{/if}}\n</div>";
   };
@@ -15,6 +21,12 @@
   strOptions = function() {
     return "<div class=\"options\">\n<div class=\"frame layer-0\"></div>\n<div class=\"frame layer-1\"></div>\n<div class=\"form\">\n	<p class=\"caption\"><b>TheWidget::options</b></p>\n	<hr>\n	<p>Site (type or select):</p>\n	<input type=\"text\" value=\"{{options.siteTyped}}\" on-click=\"@this.set('options.siteSelected','')\"/>\n	<br>\n	<select value=\"{{options.siteSelected}}\" on-click=\"@this.set('options.siteTyped','')\">\n		<option></option>\n		{{#each options.sites}}\n			<option value=\"{{this}}\">{{@this.siteName(this)}}</option>\n		{{/each}}\n	</select>\n	<p>Users limit:</p>\n	<input type=\"number\" value=\"{{options.limUsers}}\"/>\n	<hr>\n	<button on-click=\"@this.toggle('options.shown')\">Cancel</button>\n	<button on-click=\"@this.applyOpts()\">Apply</button>\n</div>\n</div>";
   };
+
+
+  /*
+    Набір параметрів візуалізацї для віджетів. Навмисне винесений за межі класу, тому що нема
+    необхідності плодити єкземпляри цього хешу, адже ці параметри є спільними для всіх віджетів
+   */
 
   theWidgetInstConfig = {
     historySize: 25,
@@ -38,6 +50,11 @@
     }
   };
 
+
+  /*
+    Функція-обгортка необхідна, щобу уберегти хеш options від деребану між віджетами
+   */
+
   theWidgetInstData = function() {
     return {
       cfg: theWidgetInstConfig,
@@ -60,6 +77,14 @@
       instId: 0
     };
   };
+
+
+  /**
+   * Шаблон для наслідування єкземпляром класу віджету.
+   * У порівнянні з попередньою версією, передбачена можливість настройки віджету після старту.
+   * Можна як вибрати порогову кількість відвідувачів, так і перепідписатися на інший сайт.
+   * Вищезгадані опції відкриваються новою хнопкою в ПН-СХ куті віджету.
+   */
 
   blueprint = {
     partials: {
@@ -108,7 +133,9 @@
     setSite: function(value) {
       this.set("site", value);
       this.set("options.siteTyped", value);
-      return this.set("options.siteSelected", value);
+      this.set("options.siteSelected", value);
+      this._history.length = 0;
+      return this._refreshData(true);
     },
     siteName: function(rawName) {
       if (rawName !== ".") {
@@ -145,7 +172,7 @@
       opts = this.get("options");
       site = (opts.siteTyped || opts.siteSelected) || ".";
       if (site && (site !== this.get("site"))) {
-        this.set("site", site);
+        this.setSite(site);
         if (this.changeCallback != null) {
           this.changeCallback(this);
         }
@@ -174,11 +201,11 @@
       limit = this._history.length;
       while (++pointer < limit) {
         amount = this._history[pointer];
-        data[pointer] = this._changeData(amount, pointer, data[pointer]);
+        data[pointer] = this._changeInfo(amount, pointer, data[pointer]);
       }
       return this.set("drawData", data);
     },
-    _changeData: function(amount, index, data) {
+    _changeInfo: function(amount, index, data) {
       var bar, barH, barSize, cfg, isHot, isTiny, lbl;
       cfg = this._CFG_;
       bar = cfg.bar;

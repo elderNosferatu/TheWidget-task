@@ -2,6 +2,9 @@ pkg = window.thewidget = window.thewidget or {}
 pkg = pkg.routine = pkg.routine or {}
 
 
+###*
+ * Клас відповідає за роботу з порожніми плейсходерами для віждетів на сторінці
+ ###
 class InputManager
 	_cfg:
 		holderClass: null

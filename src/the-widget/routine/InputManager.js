@@ -7,6 +7,11 @@
 
   pkg = pkg.routine = pkg.routine || {};
 
+
+  /**
+   * Клас відповідає за роботу з порожніми плейсходерами для віждетів на сторінці
+   */
+
   InputManager = (function() {
     InputManager.prototype._cfg = {
       holderClass: null,

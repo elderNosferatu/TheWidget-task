@@ -1,3 +1,6 @@
+###*
+ * Набір костилів
+ ###
 class XMath
 	@rnd: (maximum, minimum = 0) ->
 		min = Math.min minimum, maximum

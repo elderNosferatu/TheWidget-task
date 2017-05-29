@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>Widget task</title>
+	<!-- Цей стиль - частина умови задачі! Я навмисне його не виносив назовні -->
 	<style type="text/css">
 		.place_holder {width:300px;height:200px;background-color:#EEE;float:left;margin:10px;border:1px dashed #CCC}
 		.splitter {clear:left}
@@ -32,7 +33,9 @@
 <script src="src/the-widget/TheWidgetManager.js"></script>
 <script>
 	$(document).ready(function(){
-		var options = { /* do what you want */ };
+		var options = {
+			/* do what you want */
+		};
 		var twm = window._twm_ = new window.thewidget.TheWidgetManager(options);
 		twm.run();
 	});
