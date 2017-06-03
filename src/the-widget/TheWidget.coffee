@@ -5,20 +5,20 @@ pkg = window.thewidget = window.thewidget or {}
   і скролябельністю я вибрав іменно функції, тому що ФОЛДІНГ
 ###
 strTemplate = ->
-	"""<div class="the-widget">
-	<header>
+	"""<div class="b-the-widget">
+	<div class="b-the-widget__header">
 		<span>Site activity: <a href="" title="{{@this.siteName(site)}}">{{@this.siteName(site)}}</a></span>
-	</header>
-	<div class="thewidget-btn" on-click="suicide">&times;</div>
-	<div class="thewidget-btn" on-click="@this.toggle('options.shown')">+</div>
+	</div>
+	<div class="b-the-widget__btn" on-click="suicide">&times;</div>
+	<div class="b-the-widget__btn" on-click="@this.toggle('options.shown')">+</div>
 
 	{{>chart}}
 
-	<div class="summary">
-		<div>lim: {{limUsers}}</div>
-		<div>min: {{minUsers}}</div>
-		<div>max: {{maxUsers}}</div>
-		<div>avg: {{avgUsers}}</div>
+	<div class="b-the-widget__summary-box">
+		<div class="b-the-widget__summary-piece">lim: {{limUsers}}</div>
+		<div class="b-the-widget__summary-piece">min: {{minUsers}}</div>
+		<div class="b-the-widget__summary-piece">max: {{maxUsers}}</div>
+		<div class="b-the-widget__summary-piece">avg: {{avgUsers}}</div>
 	</div>
 
 	{{#if options.shown}}
@@ -27,7 +27,7 @@ strTemplate = ->
 </div>"""
 
 strChart = ->
-	"""<svg width="{{cfg.easel.width}}" height="{{cfg.easel.height}}">
+	"""<svg class='b-widget-chart' width="{{cfg.easel.width}}" height="{{cfg.easel.height}}">
 	<defs>
 		<linearGradient
 				id="{{hotBgId}}"
@@ -41,11 +41,12 @@ strChart = ->
 		</linearGradient>
 	</defs>
 
-	<rect class="bg"
+	<rect class="b-widget-chart__bg"
 	      x="0" y="0"
 	      width="{{cfg.easel.width}}" height="{{cfg.easel.height}}"/>
 
-	<line x1="1" y1="{{cfg.baseLine}}"
+	<line class="b-widget-chart__base-line"
+	      x1="1" y1="{{cfg.baseLine}}"
 	      x2="{{cfg.easel.width-1}}" y2="{{cfg.baseLine}}"/>
 
 	<g transform="translate({{0.5*cfg.bar.spacer}}, {{cfg.baseLine}}), scale(1, -1)">
@@ -70,26 +71,33 @@ strChart = ->
 </svg>"""
 
 strOptions = ->
-	"""<div class="options">
-	<div class="frame layer-0"></div>
-	<div class="frame layer-1"></div>
-	<div class="form">
-		<p class="caption"><b>TheWidget::options</b></p>
+	"""<div class="b-widget-opts">
+	<div class="b-widget-opts__border b-widget-opts__border_layer_0"></div>
+	<div class="b-widget-opts__border b-widget-opts__border_layer_1"></div>
+	<div class="b-widget-opts__form">
+		<p class="b-widget-opts__lbl b-widget-opts__lbl_type_caption"><b>TheWidget::options</b></p>
 		<hr>
-		<p>Site (type or select):</p>
-		<input type="text" value="{{options.siteTyped}}" on-click="@this.set('options.siteSelected','')"/>
+		<p class="b-widget-opts__lbl">Site (type or select):</p>
+		<input class="b-widget-opts__form-ctrl"
+	         type="text"
+	         value="{{options.siteTyped}}"
+	         on-click="@this.set('options.siteSelected','')"/>
 		<br>
-		<select value="{{options.siteSelected}}" on-click="@this.set('options.siteTyped','')">
+		<select class="b-widget-opts__form-ctrl"
+	          value="{{options.siteSelected}}"
+	          on-click="@this.set('options.siteTyped','')">
 			<option></option>
 			{{#each options.sites}}
 				<option value="{{this}}">{{@this.siteName(this)}}</option>
 			{{/each}}
 		</select>
-		<p>Users limit:</p>
-		<input type="number" value="{{options.limUsers}}"/>
+		<p class="b-widget-opts__lbl">Users limit:</p>
+		<input class="b-widget-opts__form-ctrl"
+	         type="number"
+	         value="{{options.limUsers}}"/>
 		<hr>
-		<button on-click="@this.toggle('options.shown')">Cancel</button>
-		<button on-click="@this.applyOpts()">Apply</button>
+		<button class="b-widget-opts__btn" on-click="@this.toggle('options.shown')">Cancel</button>
+		<button class="b-widget-opts__btn" on-click="@this.applyOpts()">Apply</button>
 	</div>
 </div>"""
 
@@ -111,7 +119,8 @@ theWidgetInstConfig =
 		width: 10
 		spacer: 2
 	lbl:
-		clsTiny: "tiny"
+		clsNorm: "b-widget-chart__lbl"
+		clsTiny: ".b-widget-chart__lbl b-widget-chart__lbl_type_tiny"
 		indentTinyBottom: 2
 		indentLeft: 8
 
@@ -279,7 +288,7 @@ blueprint =
 					h: barH
 				lbl:
 					text: amount
-					cls: (if isTiny then lbl.clsTiny else "")
+					cls: (if isTiny then lbl.clsTiny else lbl.clsNorm)
 					y: (if isTiny then barH + lbl.indentTinyBottom else 0.5 * barH)
 
 		data.bar.x = index * (bar.width + bar.spacer)

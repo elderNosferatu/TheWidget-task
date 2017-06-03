@@ -57,6 +57,7 @@ class InputManager
 				when "click"
 					unless isBusy
 						callback = @_cfg.clickCallback
+						$target.removeClass @_cfg.addInstClass
 						if callback?
 							callback.call null, target, index
 				when "mouseover"

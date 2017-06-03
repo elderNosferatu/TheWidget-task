@@ -1,11 +1,9 @@
-/* for html */
-.add_the-widget {
-	background-image: url(img/add-icon.png);
-	background-position: center center;
-	background-repeat: no-repeat;
+/* `place_holder` */
+.place_holder-mouseover {
+	background: url(img/add-icon.png) center center no-repeat;
 }
 
-.the-widget {
+.b-the-widget {
 	width: 100%;
 	height: 100%;
 	position: relative;
@@ -13,11 +11,10 @@
 	font-size: 12px;
 	color: #333;
 }
-.the-widget header {
+.b-the-widget__header {
 	white-space: nowrap;
 	overflow: hidden;
-	padding-left: 5px;
-	padding-right: 5px;
+	padding: 0 5px 0;
 	text-overflow: ellipsis;
 	vertical-align: middle;
 	line-height: 20px;
@@ -25,39 +22,38 @@
 	height: 20px;
 	float: left;
 }
-.the-widget .thewidget-btn {
+.b-the-widget__btn {
 	font-weight: bold;
 	font-size: 20px;
 	color: black;
 	width: 20px;
 	height: 20px;
 	float: right;
-	background-color: rgba(0,0,0, 0.15);
+	background: rgba(0,0,0, 0.15);
 	text-align: center;
 	vertical-align: middle;
 	line-height: 20px;
-	border-bottom-left-radius: 8px;
+	border-radius: 0 0 0 8px;
 	cursor: pointer;
 	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
+	   -moz-user-select: none;
+	    -ms-user-select: none;
+	        user-select: none;
 }
-.the-widget .summary {
+.b-the-widget__summary-box {
 	width: 100%;
 	height: 20px;
 	display: table;
 	position: absolute;
 	bottom: 0;
 }
-.the-widget .summary div {
+.b-the-widget__summary-piece {
 	display: table-cell;
 	height: 100%;
 	vertical-align: middle;
-
 }
 
-.the-widget .options {
+.b-widget-opts {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -65,25 +61,24 @@
 	height: 100%;
 	background: rgba(0,0,0, 0.25);
 }
-.options div {
+.b-widget-opts__border {
+	border: 2px solid black;
 	position: absolute;
 }
-.options .frame {
-	border: 2px solid black;
-}
-.options .frame.layer-0 {
+.b-widget-opts__border_layer_0 {
 	left: 4px;
 	top: 4px;
 	right: 8px;
 	bottom: 8px;
 }
-.options .frame.layer-1 {
+.b-widget-opts__border_layer_1 {
 	left: 8px;
 	top: 8px;
 	right: 4px;
 	bottom: 4px;
 }
-.options .form {
+.b-widget-opts__form {
+	position: absolute;
 	left: 10px;
 	top: 10px;
 	right: 10px;
@@ -91,45 +86,40 @@
 	background: rgba(255,255,255, 0.65);
 	padding: 5px;
 }
-.options p,
-.options span {
+.b-widget-opts__lbl {
 	cursor: default;
-	margin-top: 6px;
-	margin-bottom: 0;
+	margin: 6px 0 0;
 }
-.options .caption {
+.b-widget-opts__lbl_type_caption {
 	text-align: center;
 }
-.options input,
-.options select {
+.b-widget-opts__form-ctrl {
 	width: 250px;
 }
-.options button {
+.b-widget-opts__btn {
 	float: right;
 	margin: 0 5px;
 }
 
-
-
-
 /* for svg */
-line {
+.b-widget-chart {
+	/* dummy style */
+}
+.b-widget-chart__bg {
+	fill: khaki;
+}
+.b-widget-chart__base-line {
 	stroke: red;
 	stroke-width: 1px;
 }
-text {
+.b-widget-chart__lbl {
 	font-family: Courier New;
 	font-size: 10px;
 	font-weight: bold;
 	text-anchor: middle;
 	fill: white;
 }
-text.tiny {
+.b-widget-chart__lbl_type_tiny {
 	text-anchor: start;
 	fill: black;
 }
-rect.bg {
-	fill: khaki;
-}
-]]>
-

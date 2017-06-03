@@ -46,7 +46,7 @@ class TheWidgetManager
 		@_cfg =
 			colors: ["gray", "navy", "green", "olive", "teal", "blue", "purple", "maroon", "red"]
 			holderClass: "place_holder"
-			addInstClass: "add_the-widget"
+			addInstClass: "place_holder-mouseover"
 			serverUrl: "the-widget.script"
 			storeKey: "TheWidget:register"
 			instUpdClbkName: "nextData"
