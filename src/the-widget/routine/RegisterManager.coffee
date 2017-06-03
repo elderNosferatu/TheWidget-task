@@ -45,7 +45,8 @@ class RegisterManager
 	forEach: (callback) ->
 		if callback?
 			for key, value of @_data
-				callback.call null, key, value
+				idx = parseInt(key) or 0
+				callback.call null, idx, value
 
 
 

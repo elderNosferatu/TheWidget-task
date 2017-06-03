@@ -1,2 +1,5 @@
 .idea/*
-page.back.html
+*.js
+src/the-widget/routine/InputManager.js
+src/the-widget/TheWidget.js
+src/the-widget/TheWidgetManager.js

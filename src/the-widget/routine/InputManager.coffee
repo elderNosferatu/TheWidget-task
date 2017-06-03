@@ -6,16 +6,14 @@ pkg = pkg.routine = pkg.routine or {}
  * Клас відповідає за роботу з порожніми плейсходерами для віждетів на сторінці
  ###
 class InputManager
-	_cfg:
-		holderClass: null
-		addInstClass: null
-		clickCallback: null
+	_cfg: null
 	_holders: null
 	_states: null
 
-	constructor: (holderClass, addInstClass, clickCallback) ->
+	constructor: (holderClass, holderTitle, addInstClass, clickCallback) ->
 		@_cfg =
 			holderClass: holderClass
+			holderTitle: holderTitle
 			addInstClass: addInstClass
 			clickCallback: clickCallback
 		@_holders = []
@@ -24,8 +22,19 @@ class InputManager
 		@_run()
 
 
-	setHolderState: (holderIndex, isBusy) ->
-		@_states[holderIndex] = isBusy
+	setHolderState: (holderOrIndex, isBusy) ->
+		if "number" is typeof holderOrIndex
+			index = holderOrIndex
+			holder = @_holders[index]
+		else
+			holder = holderOrIndex
+			index = @_holders.indexOf holder
+
+		@_states[index] = isBusy
+		if isBusy
+			$(holder).removeAttr "title"
+		else
+			$(holder).attr "title", @_cfg.holderTitle
 
 
 	getHolderIndex: (holderInstance) ->
@@ -38,11 +47,10 @@ class InputManager
 
 	_run: ->
 		temp = $("." + @_cfg.holderClass)
+		temp.on "mouseover click", @_handleMouse
 		for holder in temp
 			@_holders.push holder
-			$(holder).on "mouseover click", @_handleMouse
-
-		@_states.length = @_holders.length
+			@setHolderState holder, no
 
 
 	_handleMouse: (event) =>
@@ -53,18 +61,19 @@ class InputManager
 			index = @_holders.indexOf target
 			isBusy = @_states[index]
 
-			switch event.type
-				when "click"
-					unless isBusy
-						callback = @_cfg.clickCallback
+			unless isBusy
+				switch event.type
+					when "click"
+						@setHolderState index, yes
 						$target.removeClass @_cfg.addInstClass
+						callback = @_cfg.clickCallback
 						if callback?
 							callback.call null, target, index
-				when "mouseover"
-					$target.addClass @_cfg.addInstClass
-					$target.one "mouseleave", @_handleMouse
-				when "mouseleave"
-					$target.removeClass @_cfg.addInstClass
+					when "mouseover"
+						$target.addClass @_cfg.addInstClass
+						$target.one "mouseleave", @_handleMouse
+					when "mouseleave"
+						$target.removeClass @_cfg.addInstClass
 
 
 

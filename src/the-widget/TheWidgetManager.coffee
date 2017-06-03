@@ -45,6 +45,7 @@ class TheWidgetManager
 	constructor: (options = null) ->
 		@_cfg =
 			colors: ["gray", "navy", "green", "olive", "teal", "blue", "purple", "maroon", "red"]
+			holderTitle: "add The-Widget"
 			holderClass: "place_holder"
 			addInstClass: "place_holder-mouseover"
 			serverUrl: "the-widget.script"
@@ -64,7 +65,7 @@ class TheWidgetManager
 	run: ->
 		cfg = @_cfg
 		@_mgrRegister = new RegisterManager(cfg.storeKey)
-		@_mgrInput = new InputManager(cfg.holderClass, cfg.addInstClass, @_clbInput)
+		@_mgrInput = new InputManager(cfg.holderClass, cfg.holderTitle, cfg.addInstClass, @_clbInput)
 		@_mgrWatch = new ActivityWatchManager(cfg.requestDelay, cfg.serverUrl, @_parseSrvResp, cfg.instUpdClbkName)
 
 		cfg.knownSites = @_mgrWatch.getKnownSites()
