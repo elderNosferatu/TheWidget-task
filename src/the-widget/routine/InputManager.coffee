@@ -10,7 +10,7 @@ class InputManager
 	_holders: null
 	_states: null
 
-	constructor: (holderClass, holderTitle, addInstClass, clickCallback) ->
+	constructor: (holderTitle, holderClass, addInstClass, clickCallback) ->
 		@_cfg =
 			holderClass: holderClass
 			holderTitle: holderTitle
@@ -37,10 +37,6 @@ class InputManager
 			$(holder).attr "title", @_cfg.holderTitle
 
 
-	getHolderIndex: (holderInstance) ->
-		@_holders.indexOf holderInstance
-
-
 	getHolder: (holderIndex) ->
 		@_holders[holderIndex]
 
@@ -51,6 +47,8 @@ class InputManager
 		for holder in temp
 			@_holders.push holder
 			@setHolderState holder, no
+
+		return
 
 
 	_handleMouse: (event) =>

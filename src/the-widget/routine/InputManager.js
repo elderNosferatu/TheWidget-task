@@ -13,20 +13,17 @@
    */
 
   InputManager = (function() {
-    InputManager.prototype._cfg = {
-      holderClass: null,
-      addInstClass: null,
-      clickCallback: null
-    };
+    InputManager.prototype._cfg = null;
 
     InputManager.prototype._holders = null;
 
     InputManager.prototype._states = null;
 
-    function InputManager(holderClass, addInstClass, clickCallback) {
+    function InputManager(holderTitle, holderClass, addInstClass, clickCallback) {
       this._handleMouse = bind(this._handleMouse, this);
       this._cfg = {
         holderClass: holderClass,
+        holderTitle: holderTitle,
         addInstClass: addInstClass,
         clickCallback: clickCallback
       };
@@ -35,12 +32,21 @@
       this._run();
     }
 
-    InputManager.prototype.setHolderState = function(holderIndex, isBusy) {
-      return this._states[holderIndex] = isBusy;
-    };
-
-    InputManager.prototype.getHolderIndex = function(holderInstance) {
-      return this._holders.indexOf(holderInstance);
+    InputManager.prototype.setHolderState = function(holderOrIndex, isBusy) {
+      var holder, index;
+      if ("number" === typeof holderOrIndex) {
+        index = holderOrIndex;
+        holder = this._holders[index];
+      } else {
+        holder = holderOrIndex;
+        index = this._holders.indexOf(holder);
+      }
+      this._states[index] = isBusy;
+      if (isBusy) {
+        return $(holder).removeAttr("title");
+      } else {
+        return $(holder).attr("title", this._cfg.holderTitle);
+      }
     };
 
     InputManager.prototype.getHolder = function(holderIndex) {
@@ -50,12 +56,12 @@
     InputManager.prototype._run = function() {
       var holder, i, len, temp;
       temp = $("." + this._cfg.holderClass);
+      temp.on("mouseover click", this._handleMouse);
       for (i = 0, len = temp.length; i < len; i++) {
         holder = temp[i];
         this._holders.push(holder);
-        $(holder).on("mouseover click", this._handleMouse);
+        this.setHolderState(holder, false);
       }
-      return this._states.length = this._holders.length;
     };
 
     InputManager.prototype._handleMouse = function(event) {
@@ -66,20 +72,22 @@
         $target = $(target);
         index = this._holders.indexOf(target);
         isBusy = this._states[index];
-        switch (event.type) {
-          case "click":
-            if (!isBusy) {
+        if (!isBusy) {
+          switch (event.type) {
+            case "click":
+              this.setHolderState(index, true);
+              $target.removeClass(this._cfg.addInstClass);
               callback = this._cfg.clickCallback;
               if (callback != null) {
                 return callback.call(null, target, index);
               }
-            }
-            break;
-          case "mouseover":
-            $target.addClass(this._cfg.addInstClass);
-            return $target.one("mouseleave", this._handleMouse);
-          case "mouseleave":
-            return $target.removeClass(this._cfg.addInstClass);
+              break;
+            case "mouseover":
+              $target.addClass(this._cfg.addInstClass);
+              return $target.one("mouseleave", this._handleMouse);
+            case "mouseleave":
+              return $target.removeClass(this._cfg.addInstClass);
+          }
         }
       }
     };

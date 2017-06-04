@@ -1,7 +1,7 @@
 pkg = window.thewidget = window.thewidget or {}
 
 ###
-  Три наступні функції могли бути просто змінними зі строковими значеннями, але в погоні за читабельністю
+  Дві наступні функції могли бути просто змінними зі строковими значеннями, але в погоні за читабельністю
   і скролябельністю я вибрав іменно функції, тому що ФОЛДІНГ
 ###
 strTemplate = ->
@@ -10,7 +10,6 @@ strTemplate = ->
 		<span>Site activity: <a href="" title="{{@this.siteName(site)}}">{{@this.siteName(site)}}</a></span>
 	</div>
 	<div class="b-the-widget__btn" on-click="suicide">&times;</div>
-	<div class="b-the-widget__btn" on-click="@this.toggle('options.shown')">+</div>
 
 	{{>chart}}
 
@@ -21,9 +20,6 @@ strTemplate = ->
 		<div class="b-the-widget__summary-piece">avg: {{avgUsers}}</div>
 	</div>
 
-	{{#if options.shown}}
-		{{>options}}
-	{{/if}}
 </div>"""
 
 strChart = ->
@@ -70,36 +66,6 @@ strChart = ->
 	</g>
 </svg>"""
 
-strOptions = ->
-	"""<div class="b-widget-opts">
-	<div class="b-widget-opts__border b-widget-opts__border_layer_0"></div>
-	<div class="b-widget-opts__border b-widget-opts__border_layer_1"></div>
-	<div class="b-widget-opts__form">
-		<p class="b-widget-opts__lbl b-widget-opts__lbl_type_caption"><b>TheWidget::options</b></p>
-		<hr>
-		<p class="b-widget-opts__lbl">Site (type or select):</p>
-		<input class="b-widget-opts__form-ctrl"
-	         type="text"
-	         value="{{options.siteTyped}}"
-	         on-click="@this.set('options.siteSelected','')"/>
-		<br>
-		<select class="b-widget-opts__form-ctrl"
-	          value="{{options.siteSelected}}"
-	          on-click="@this.set('options.siteTyped','')">
-			<option></option>
-			{{#each options.sites}}
-				<option value="{{this}}">{{@this.siteName(this)}}</option>
-			{{/each}}
-		</select>
-		<p class="b-widget-opts__lbl">Users limit:</p>
-		<input class="b-widget-opts__form-ctrl"
-	         type="number"
-	         value="{{options.limUsers}}"/>
-		<hr>
-		<button class="b-widget-opts__btn" on-click="@this.toggle('options.shown')">Cancel</button>
-		<button class="b-widget-opts__btn" on-click="@this.applyOpts()">Apply</button>
-	</div>
-</div>"""
 
 ###
   Набір параметрів візуалізацї для віджетів. Навмисне винесений за межі класу, тому що нема
@@ -120,22 +86,15 @@ theWidgetInstConfig =
 		spacer: 2
 	lbl:
 		clsNorm: "b-widget-chart__lbl"
-		clsTiny: ".b-widget-chart__lbl b-widget-chart__lbl_type_tiny"
+		clsTiny: "b-widget-chart__lbl b-widget-chart__lbl_type_tiny"
 		indentTinyBottom: 2
 		indentLeft: 8
 
 ###
-  Функція-обгортка необхідна, щобу уберегти хеш options від деребану між віджетами
+  Функція-обгортка необхідна, щоб уберегти хеш options від деребану між віджетами
 ###
 theWidgetInstData = ->
 	cfg: theWidgetInstConfig
-	options:
-		shown: false
-		sites: null
-		siteTyped: ""
-		siteSelected: ""
-		limUsers: 0
-
 	barColor: "black"
 	hotColor: "black"
 	hotBgId: theWidgetInstConfig.bar.hotBgId
@@ -158,7 +117,6 @@ theWidgetInstData = ->
  ###
 blueprint =
 	partials:
-		options: strOptions()
 		chart: strChart()
 	template: strTemplate()
 	data: theWidgetInstData
@@ -168,7 +126,9 @@ blueprint =
 	_history: null
 	_historySum: 0
 	_historySteps: 0
-	_overwlown: false
+	_overwlown: null
+	_requestUrl: null
+	_dead: null
 	_min: Number.MAX_VALUE
 	_max: 0
 	_avg: 0
@@ -176,38 +136,33 @@ blueprint =
 
 
 	oninit: ->
+		method = @_clbResponse
+		scope = @
+		@_clbResponse = () -> method.apply scope, arguments
+
+		initialData = @initialData
+		delete @initialData
+
 		@_history = []
-		@set "instId", @instId
+		@_overflown = no
+		@_dead = no
+		@_requestUrl = initialData.site + "/" + @serverUrl
+		@_lim = initialData.limUsers
+		@_barColor = initialData.barColor
 		hotBgId = @get "hotBgId"
-		hotBgId = hotBgId.replace "$param", @instId
+		hotBgId = hotBgId.replace "$param", initialData.instId
+		@set "instId", initialData.instId
 		@set "hotBgId", hotBgId
+		@set "barColor", initialData.barColor
 		@set "hotColor", "url('#" + hotBgId + "')"
+		@set "limUsers", initialData.limUsers
+		@set "site", initialData.site
 		@set "drawData", []
-		@set "options.sites", @knownSites
-		@on {
-			suicide: @suicide,
-			showOptions: @showOptions
-		}
+		@on { suicide: @suicide }
+		@_askData()
 
-	setUsersLim: (value) ->
-		@_lim = value
-		@set "limUsers", value
-		@set "options.limUsers", value
-		@set "drawData", []
-		@_refreshData true
-
-	setBarColor: (value) ->
-		@_barColor = value
-		@set "barColor", value
-		@_refreshData true
-
-	setSite: (value) ->
-		@set "site", value
-		@set "options.siteTyped", value
-		@set "options.siteSelected", value
-		@_history.length = 0
-		@_refreshData true
-
+	onteardown: ->
+		@_dead = yes
 
 	siteName: (rawName) ->
 		if rawName isnt "."
@@ -215,51 +170,14 @@ blueprint =
 		else
 			@get "cfg.thisSite"
 
-	nextData: (currentAmount) ->
-		if currentAmount > 0
-			@_overflown = @_history.length >= @_CFG_.historySize
-			if @_overflown
-				@_history.shift()
-
-			@_history.push currentAmount
-			@_historySum += currentAmount
-			@_historySteps++
-			@_avg = Math.round (@_historySum / @_historySteps)
-			@_min = Math.min @_min, currentAmount
-			@_max = Math.max @_max, currentAmount
-
-			@_refreshData()
-			@set "minUsers", @_min
-			@set "maxUsers", @_max
-			@set "avgUsers", @_avg
-
 	suicide: ->
 		if @suicideCallback?
 			@suicideCallback @
 
-	applyOpts: ->
-		opts = @get "options"
-		site = (opts.siteTyped or opts.siteSelected) or "."
-
-		if site and (site isnt @get "site")
-			@setSite site
-			if @changeCallback?
-				@changeCallback @
-
-		if @_lim isnt opts.limUsers
-			@setUsersLim opts.limUsers
-
-		if @changeCallback
-			@changeCallback @
-
-		this.toggle('options.shown')
-
-	_refreshData: (isDirty = false) ->
+	_refreshData: ->
 		data = @get "drawData"
 		if @_overflown
 			data.shift()
-		if isDirty
-			data.length = 0
 
 		pointer = -1
 		limit = @_history.length
@@ -268,7 +186,6 @@ blueprint =
 			data[pointer] = @_changeInfo amount, pointer, data[pointer]
 
 		@set "drawData", data
-
 
 	_changeInfo: (amount, index, data) ->
 		cfg = @_CFG_
@@ -296,6 +213,32 @@ blueprint =
 
 		data
 
+	_askData: ->
+		unless @_dead
+			$.post @_requestUrl, @_clbResponse
+
+	_clbResponse: (data) ->
+		unless @_dead
+			@_nextData data
+			@_askData()
+
+	_nextData: (currentAmount) ->
+		if currentAmount > 0
+			@_overflown = @_history.length >= @_CFG_.historySize
+			if @_overflown
+				@_history.shift()
+
+			@_history.push currentAmount
+			@_historySum += currentAmount
+			@_historySteps++
+			@_avg = Math.round (@_historySum / @_historySteps)
+			@_min = Math.min @_min, currentAmount
+			@_max = Math.max @_max, currentAmount
+
+			@_refreshData()
+			@set "minUsers", @_min
+			@set "maxUsers", @_max
+			@set "avgUsers", @_avg
 
 
 

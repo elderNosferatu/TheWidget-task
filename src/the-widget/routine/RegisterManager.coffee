@@ -48,6 +48,8 @@ class RegisterManager
 				idx = parseInt(key) or 0
 				callback.call null, idx, value
 
+		return
+
 
 
 pkg.RegisterManager = RegisterManager
