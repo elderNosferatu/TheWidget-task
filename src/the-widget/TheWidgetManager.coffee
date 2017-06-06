@@ -3,14 +3,13 @@ pkg = window.thewidget = window.thewidget or {}
 
 # something like import
 InputManager = pkg.routine.InputManager
-RegisterManager = pkg.routine.RegisterManager
 TheWidget = pkg.TheWidget
 
 
 class TheWidgetManager
 	_cfg: null
 	_cache: null
-	_mgrRegister: null
+	_register: null
 	_mgrInput: null
 
 
@@ -25,6 +24,7 @@ class TheWidgetManager
 			defaultSite: "."
 			limUsers: 150
 		@_cache = {}
+		@_register = {}
 
 		if options?
 			for key, value of options
@@ -34,17 +34,43 @@ class TheWidgetManager
 	run: ->
 		cfg = @_cfg
 		@_mgrInput = new InputManager(cfg.holderTitle, cfg.holderClass, cfg.addInstClass, @_clbInput)
-		@_mgrRegister = new RegisterManager(cfg.storeKey)
-		@_mgrRegister.load()
-		@_mgrRegister.forEach @_addFromReg
+		@_regLoad()
+		@_restorePrevSession()
 
 
+	_regLoad: ->
+		try
+			temp = localStorage.getItem @_cfg.storeKey
+			temp = JSON.parse temp
+		catch error
+			null # Just a trick for WebStorm's code folding
+
+		@_register = temp or {}
+	
+	
+	_regSave: ->
+		try
+			temp = JSON.stringify @_register
+			localStorage.setItem @_cfg.storeKey, temp
+		catch error
+			null # Just a trick for WebStorm's code folding
+	
+	
+	_restorePrevSession: ->
+		for key, value of @_register
+			idx = parseInt(key) or 0
+			holder = @_mgrInput.getHolder idx
+			@_addInstance holder, idx, value
+			
+		return
+	
+	
 	_addInstance: (holderInstance, holderIndex, instanceData = null) ->
 		cfg = @_cfg
 		opts = instanceData or {}
 		opts.site = opts.site or cfg.defaultSite
 		opts.limUsers = opts.limUsers or cfg.limUsers
-		unless opts.color?
+		unless opts.barColor?
 			opts.barColor = XMath.arrRnd cfg.colors
 
 		theInst = new TheWidget({
@@ -60,32 +86,27 @@ class TheWidgetManager
 		})
 
 		@_cache[holderIndex] = theInst
+		@_register[holderIndex] = opts
 		@_mgrInput.setHolderState holderIndex, true
-		@_mgrRegister.set holderIndex, opts
 
 
 	_removeInstance: (instance, holderInstance, holderIndex) ->
 		delete @_cache[holderIndex]
+		delete @_register[holderIndex]
 		instance.teardown()
 		@_mgrInput.setHolderState holderIndex, off
-		@_mgrRegister.set holderIndex, null
-
-
-	_addFromReg: (holderIndex, instanceData) =>
-		holder = @_mgrInput.getHolder holderIndex
-		@_addInstance holder, holderIndex, instanceData
 
 
 	_clbInput: (holderInstance, holderIndex) =>
 		@_addInstance holderInstance, holderIndex
-		@_mgrRegister.save()
+		@_regSave()
 
 
 	_clbInstSuicide: (instance) =>
 		holderIndex = instance.position
 		holderInstance = @_mgrInput.getHolder holderIndex
 		@_removeInstance instance, holderInstance, holderIndex
-		@_mgrRegister.save()
+		@_regSave()
 
 
 
